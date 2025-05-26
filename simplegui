@@ -1,150 +1,158 @@
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local UIS = game:GetService("UserInputService")
-local run = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local player = game.Players.LocalPlayer
 
--- GUI setup
-local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-ScreenGui.Name = "CorporationHub"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling  -- Keeps GUI on top
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui", CoreGui)
+screenGui.Name = "CORPORATION_HUB_LOW_END"
+screenGui.ResetOnSpawn = false
 
-local toggleButton = Instance.new("ImageButton", ScreenGui)
-toggleButton.Size = UDim2.new(0, 25, 0, 25)
-toggleButton.Position = UDim2.new(1, -30, 0, 5)
-toggleButton.Image = "rbxassetid://4483345998"
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-toggleButton.Draggable = true
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+mainFrame.Position = UDim2.new(0, 20, 0.3, 0)
+mainFrame.Size = UDim2.new(0, 180, 0, 325)
+mainFrame.Visible = true
+mainFrame.Active = true
+mainFrame.Draggable = true
 
-local main = Instance.new("Frame", ScreenGui)
-main.Size = UDim2.new(0, 400, 0, 200)
-main.Position = UDim2.new(0.5, -200, 0.5, -100)
-main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-main.BorderSizePixel = 0
-main.Visible = true
-main.Draggable = true  -- Enable dragging functionality
+-- Title Label
+local titleLabel = Instance.new("TextLabel", mainFrame)
+titleLabel.Size = UDim2.new(1, 0, 0, 25)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.Text = "CORPARATION HUB [BETA BUT ESP GOOD]"
+titleLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 12
 
-local UICorner = Instance.new("UICorner", main)
-UICorner.CornerRadius = UDim.new(0, 10)
-
-local rainbowText = Instance.new("TextLabel", main)
-rainbowText.Size = UDim2.new(1, 0, 0, 25)
-rainbowText.BackgroundTransparency = 1
-rainbowText.Text = "CORPORATION HUB"
-rainbowText.Font = Enum.Font.GothamBlack
-rainbowText.TextSize = 18
-
--- Rainbow text animation
-task.spawn(function()
-    local hue = 0
-    while true do
-        rainbowText.TextColor3 = Color3.fromHSV(hue, 1, 1)
-        hue = (hue + 0.01) % 1
-        task.wait(0.05)
-    end
+-- Toggle Show/Hide Button
+local toggleBtn = Instance.new("TextButton", screenGui)
+toggleBtn.Size = UDim2.new(0, 25, 0, 25)
+toggleBtn.Position = UDim2.new(0, 0, 0.5, -100)
+toggleBtn.Text = "+"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleBtn.MouseButton1Click:Connect(function()
+	mainFrame.Visible = not mainFrame.Visible
 end)
 
-local function playSound()
-    local sound = Instance.new("Sound", player:WaitForChild("PlayerGui"))
-    sound.SoundId = "rbxassetid://452267918"
-    sound.Volume = 5
-    sound:Play()
-    game.Debris:AddItem(sound, 3)
+-- Function for buttons
+local function createButton(name, scriptURL, order)
+	local btn = Instance.new("TextButton", mainFrame)
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.Position = UDim2.new(0, 5, 0, 30 + (order * 35))
+	btn.Name = name
+	btn.Text = name
+	btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 14
+	btn.MouseButton1Click:Connect(function()
+		if scriptURL ~= "" then
+			loadstring(game:HttpGet(scriptURL))()
+		end
+	end)
+	return btn
 end
 
--- Utility function for buttons
-local function createButton(name, position, callback)
-    local button = Instance.new("TextButton", main)
-    button.Size = UDim2.new(0, 120, 0, 25)
-    button.Position = position
-    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextColor3 = Color3.fromRGB(255, 0, 0)
-    button.Font = Enum.Font.GothamBold
-    button.TextSize = 12
-    button.Text = name
-    button.MouseButton1Click:Connect(function()
-        playSound()
-        callback()
-    end)
-    return button
+-- Script Buttons
+createButton("ESP", "https://pastebin.com/raw/D44G9K8b", 0)
+createButton("Aimbot", "https://pastebin.com/raw/qtZt0Nzb", 1)
+createButton("Hitbox", "https://pastebin.com/raw/DJ0GmDRu", 2)
+local texBtn = createButton("8-Bit Texture", "", 3)
+
+-- 8-bit Texture Logic
+texBtn.MouseButton1Click:Connect(function()
+	local function simplifyPart(part)
+		if part:IsA("BasePart") then
+			part.Material = Enum.Material.SmoothPlastic
+			part.Color = Color3.fromRGB(200, 200, 200)
+		end
+	end
+
+	for _, obj in pairs(workspace:GetDescendants()) do
+		simplifyPart(obj)
+	end
+
+	workspace.DescendantAdded:Connect(function(obj)
+		simplifyPart(obj)
+	end)
+end)
+
+-- TEAMCHECK STATE
+local teamCheck = true
+
+-- Golden Knife Button
+local goldenKnifeBtn = createButton("Golden Knife (Backstep)", "", 4)
+goldenKnifeBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+
+-- Golden Knife Instant Button
+local goldenInstantBtn = createButton("Golden Knife Instant", "", 5)
+
+-- TeamCheck Toggle Button
+local teamCheckBtn = Instance.new("TextButton", mainFrame)
+teamCheckBtn.Size = UDim2.new(1, -10, 0, 25)
+teamCheckBtn.Position = UDim2.new(0, 5, 0, 30 + (6 * 35))
+teamCheckBtn.Text = "TeamCheck: ON"
+teamCheckBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+teamCheckBtn.TextColor3 = Color3.fromRGB(200, 200, 255)
+teamCheckBtn.Font = Enum.Font.SourceSansBold
+teamCheckBtn.TextSize = 14
+teamCheckBtn.MouseButton1Click:Connect(function()
+	teamCheck = not teamCheck
+	teamCheckBtn.Text = "TeamCheck: " .. (teamCheck and "ON" or "OFF")
+end)
+
+-- Teleport Functions
+local function teleportToClosestEnemy()
+	local character = player.Character
+	if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+	local closest, distance = nil, math.huge
+	for _, target in ipairs(game.Players:GetPlayers()) do
+		if target ~= player and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+			if teamCheck and target.Team == player.Team then continue end
+			local dist = (character.HumanoidRootPart.Position - target.Character.HumanoidRootPart.Position).Magnitude
+			if dist < distance then
+				distance = dist
+				closest = target
+			end
+		end
+	end
+
+	if closest then
+		local targetHRP = closest.Character.HumanoidRootPart
+		local offset = targetHRP.CFrame.LookVector * -3
+		character.HumanoidRootPart.CFrame = targetHRP.CFrame + offset + Vector3.new(0, 2, 0)
+	end
 end
 
--- ESP (Updated script)
-createButton("ESP", UDim2.new(0, 10, 0, 30), function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Rafimuhuehe/esptracerprivate/refs/heads/main/teamcolor"))()
-end)
+local function teleportToRandomEnemy()
+	local enemies = {}
+	for _, target in ipairs(game.Players:GetPlayers()) do
+		if target ~= player and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+			if teamCheck and target.Team == player.Team then continue end
+			table.insert(enemies, target)
+		end
+	end
 
--- Hitbox
-createButton("Hitbox", UDim2.new(0, 140, 0, 30), function()
-    loadstring(game:HttpGet(('https://pastebin.com/raw/DJ0GmDRu'),true))()
-end)
+	if #enemies > 0 then
+		local chosen = enemies[math.random(1, #enemies)]
+		local targetHRP = chosen.Character.HumanoidRootPart
+		local offset = targetHRP.CFrame.LookVector * -3
+		player.Character.HumanoidRootPart.CFrame = targetHRP.CFrame + offset + Vector3.new(0, 2, 0)
+	end
+end
 
--- FOV
-local fovValue = 300
-createButton("Set FOV 300", UDim2.new(0, 270, 0, 30), function()
-    local cam = workspace.CurrentCamera
-    cam.FieldOfView = fovValue
-end)
+-- Connect Teleport Buttons
+goldenKnifeBtn.MouseButton1Click:Connect(teleportToClosestEnemy)
+goldenInstantBtn.MouseButton1Click:Connect(teleportToRandomEnemy)
 
--- FPS Unlocker
-createButton("FPS Unlocker", UDim2.new(0, 10, 0, 65), function()
-    settings().Rendering.FrameRateManager = Enum.FrameRateManager.Physics
-    setfpscap(1000)
-end)
-
--- 8-bit Texture (white)
-createButton("8-bit Texture", UDim2.new(0, 140, 0, 65), function()
-    for _, p in pairs(workspace:GetDescendants()) do
-        if p:IsA("BasePart") and not p:IsDescendantOf(char) then
-            p.Material = Enum.Material.SmoothPlastic
-            p.Color = Color3.new(1, 1, 1)
-        end
-    end
-end)
-
--- Double Jump
-local canDoubleJump = false
-local hasJumped = false
-
-createButton("Double Jump", UDim2.new(0, 270, 0, 65), function()
-    UIS.JumpRequest:Connect(function()
-        if not hasJumped then
-            hasJumped = true
-        elseif canDoubleJump then
-            char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end)
-
-    char:WaitForChild("Humanoid").StateChanged:Connect(function(_, new)
-        if new == Enum.HumanoidStateType.Landed then
-            hasJumped = false
-            canDoubleJump = true
-        end
-    end)
-end)
-
--- Aimbot
-createButton("Aimbot", UDim2.new(0, 10, 0, 100), function()
-    loadstring(game:HttpGet("https://pastebin.com/raw/qtZt0Nzb"))()
-end)
-
--- Toggle GUI
-toggleButton.MouseButton1Click:Connect(function()
-    main.Visible = not main.Visible
-end)
-
--- Footer
-local footer = Instance.new("TextLabel", main)
-footer.Size = UDim2.new(1, 0, 0, 15)
-footer.Position = UDim2.new(0, 0, 1, -15)
+-- Footer text
+local footer = Instance.new("TextLabel", mainFrame)
+footer.Size = UDim2.new(1, 0, 0, 20)
+footer.Position = UDim2.new(0, 0, 1, -20)
 footer.Text = "OWNERS: RAPZCORPORATION"
-footer.TextColor3 = Color3.fromRGB(255, 0, 0)
-footer.Font = Enum.Font.GothamBold
-footer.TextSize = 12
+footer.TextColor3 = Color3.new(1, 1, 1)
 footer.BackgroundTransparency = 1
-
-local stroke = Instance.new("UIStroke", footer)
-stroke.Color = Color3.fromRGB(255, 255, 255)
-stroke.Thickness = 1
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+footer.Font = Enum.Font.SourceSansBold
+footer.TextSize = 12
